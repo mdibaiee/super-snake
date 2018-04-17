@@ -10,10 +10,10 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.utils.Array;
 
 class Tail extends DirectedPoint {
-    public int length;
+    public float length;
     public boolean breaking;
 
-    public Tail(float x, float y, Direction direction, int length) {
+    public Tail(float x, float y, Direction direction, float length) {
         super(x, y, direction);
         this.length = length;
     }
@@ -25,12 +25,13 @@ class Tail extends DirectedPoint {
 }
 
 public class Snake extends DirectedPoint {
-    private Color color = Colors.snake;
+    public Color color = Colors.snake;
     public int size = 10;
+    public int point = 0;
 
     private Array<Tail> tail = new Array<Tail>();
 
-    public int speed = 2;
+    public float speed = 2;
     public int lives = 3;
 
     public Snake(float x, float y, int length) {
@@ -82,25 +83,13 @@ public class Snake extends DirectedPoint {
         return 0;
     }
 
-    private Direction getNewDirection(DirectedPoint point, DirectedPoint last) {
-        if (point.direction == last.direction) return point.direction;
-
-        float expectedX = point.x + cx(last.direction) * size;
-        float expectedY = point.y + cy(last.direction) * size;
-
-        if (Math.abs(last.x - expectedX) <= speed &&
-            Math.abs(last.y - expectedY) <= speed) {
-            return last.direction;
-        }
-
-        return point.direction;
-    }
-
     public void move() {
         float ox = x;
         float oy = y;
         boolean cycled = this.move(x + cx(direction) * speed,
                                    y + cy(direction) * speed);
+
+        Gdx.app.log("Snake", "(" + ox + ", " + oy + ") > " + "(" + x + ", " + y + ")");
 
         if (cycled) {
             tail.insert(0, new Tail(ox, oy, direction, 0));
@@ -114,8 +103,10 @@ public class Snake extends DirectedPoint {
         last.move(last.x + cx(last.direction) * speed, last.y + cy(last.direction) * speed);
         last.length -= speed;
 
-        if (last.length <= 0) {
+        while (tail.peek().length <= 0) {
+            float diff = tail.peek().length;
             tail.removeIndex(tail.size - 1);
+            tail.peek().length += diff;
         }
     }
 
@@ -125,6 +116,11 @@ public class Snake extends DirectedPoint {
         last.x -= cx(last.direction) * 5;
         last.y -= cy(last.direction) * 5;
 
-        speed += 1;
+        speed += 0.5;
+    }
+
+    public boolean head_collision(SizedPoint p) {
+        SizedPoint s = new SizedPoint(x - size / 2, y - size / 2, size);
+        return s.collides(p);
     }
 }

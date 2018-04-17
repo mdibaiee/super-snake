@@ -1,7 +1,5 @@
 package com.mdibaiee.supersnake;
-
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.mdibaiee.supersnake.Colors;
+import com.mdibaiee.supersnake.Magics.*;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -9,7 +7,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Array;
 
@@ -17,15 +14,13 @@ public class SuperSnake extends ApplicationAdapter {
     public int WIDTH = 800;
     public int HEIGHT = 480;
 
-    int points = 0;
-
 	SpriteBatch batch;
     ShapeRenderer shapeRenderer;
 	Texture img;
     Snake snake;
     BitmapFont font;
 
-    private Array<Ball> balls = new Array<Ball>();
+    private Array<Magic> magics = new Array<Magic>();
 
 	@Override
 	public void create () {
@@ -34,6 +29,8 @@ public class SuperSnake extends ApplicationAdapter {
 
         WIDTH = Gdx.graphics.getBackBufferWidth();
         HEIGHT = Gdx.graphics.getBackBufferHeight();
+
+        Gdx.app.log("Snake", "VIEWPORT " + WIDTH + ", " + HEIGHT);
 
         shapeRenderer = new ShapeRenderer();
 
@@ -64,25 +61,53 @@ public class SuperSnake extends ApplicationAdapter {
             }
         }
 
-        if (balls.size < 1) {
-            balls.add(new Ball((float) Math.random() * WIDTH, (float) Math.random() * HEIGHT));
+        int drawn_magics = 0;
+
+        for (Magic m: magics) {
+            if (!m.active) drawn_magics++;
+        }
+
+        if (drawn_magics < 3) {
+            double r = Math.random() * 100;
+            float mx = (float) Math.random() * WIDTH;
+            float my = (float) Math.random() * HEIGHT;
+
+            Magic newMagic;
+            if (r < 70) {
+                newMagic = new StarPoint(mx, my);
+            } else if (r < 80) {
+                newMagic = new SpeedBoost(mx, my);
+            } else if (r < 90) {
+                newMagic = new Growth(mx, my);
+            } else {
+                newMagic = new Skull(mx, my);
+            }
+
+            newMagic = new SpeedBoost(mx, my);
+
+            magics.add(newMagic);
         }
 
         snake.draw(shapeRenderer);
         snake.move();
 
-        for(Ball b: balls) {
-            b.draw(shapeRenderer);
-        }
-
-        if (snake.distance(balls.first()) < balls.first().size) {
-            balls.removeIndex(0);
-            points += 1;
-            snake.addTail();
+        for(Magic m: magics) {
+            if (m.active) {
+                if (m.iter()) {
+                    magics.removeValue(m, true);
+                }
+            } else {
+                if (m.draw()) {
+                    magics.removeValue(m, true);
+                } else if (snake.head_collision(m)) {
+                    m.action(snake);
+                    m.active = true;
+                }
+            }
         }
 
         batch.begin();
-        font.draw(batch, Integer.toString(points), 10, 25);
+        font.draw(batch, Integer.toString(snake.point), 10, 25);
         batch.end();
 	}
 	
