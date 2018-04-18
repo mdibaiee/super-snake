@@ -31,7 +31,7 @@ public class Snake extends DirectedPoint {
 
     private Array<Tail> tail = new Array<Tail>();
 
-    public float speed = 2;
+    public float speed = 4;
     public int lives = 3;
 
     public Snake(float x, float y, int length) {
@@ -89,7 +89,7 @@ public class Snake extends DirectedPoint {
         boolean cycled = this.move(x + cx(direction) * speed,
                                    y + cy(direction) * speed);
 
-        Gdx.app.log("Snake", "(" + ox + ", " + oy + ") > " + "(" + x + ", " + y + ")");
+        // Gdx.app.log("Snake", "(" + ox + ", " + oy + ") > " + "(" + x + ", " + y + ")");
 
         if (cycled) {
             tail.insert(0, new Tail(ox, oy, direction, 0));
@@ -112,11 +112,15 @@ public class Snake extends DirectedPoint {
 
     public void addTail() {
         Tail last = tail.peek();
-        last.length += 5;
-        last.x -= cx(last.direction) * 5;
-        last.y -= cy(last.direction) * 5;
+        last.length += 25;
+        last.x -= cx(last.direction) * 25;
+        last.y -= cy(last.direction) * 25;
 
-        speed += 0.5;
+        speed += 1;
+    }
+
+    public void clearTail() {
+        tail.removeRange(1, tail.size);
     }
 
     public boolean head_collision(SizedPoint p) {

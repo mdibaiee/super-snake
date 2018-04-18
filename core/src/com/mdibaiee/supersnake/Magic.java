@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Array;
 
 public abstract class Magic extends SizedPoint {
     SpriteBatch batch;
@@ -67,7 +68,7 @@ public abstract class Magic extends SizedPoint {
         return false;
     }
 
-    abstract public void action(Snake snake);
+    abstract public void action(Snake snake, Array<Magic> magics);
 
     // this method will be called after action at each iteration until it returns true
     // when it does return true ,the object is disposed

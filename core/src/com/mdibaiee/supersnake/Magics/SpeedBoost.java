@@ -1,5 +1,6 @@
 package com.mdibaiee.supersnake.Magics;
 
+import com.badlogic.gdx.utils.Array;
 import com.mdibaiee.supersnake.Magic;
 import com.mdibaiee.supersnake.Snake;
 
@@ -16,7 +17,7 @@ public class SpeedBoost extends Magic {
         original_y = y;
     }
 
-    public void action(Snake snake) {
+    public void action(Snake snake, Array<Magic> magics) {
         this.snake = snake;
         snake.speed += 5;
     }
